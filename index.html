@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>MYAMO Translate</title>
+<style>
+  :root {
+    --bg: #060403;
+    --panel: rgba(14, 9, 6, 0.68);
+    --panel-hover: rgba(22, 15, 10, 0.82);
+    --border: rgba(205, 157, 105, 0.14);
+    --border-active: rgba(205, 157, 105, 0.6);
+    --caramel: #cd9f69;
+    --caramel-dim: rgba(205, 157, 105, 0.55);
+    --brown: #7a4420;
+    --text: #f8f3ed;
+    --muted: #9e8e80;
+    --danger: #f87171;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; }
+
+  body {
+    background: radial-gradient(circle at 20% 10%, #1a0f08 0%, #060403 65%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .bg-mascot {
+    position: fixed; inset: 0;
+    background: url("myamoquiregardemale.png") center/cover no-repeat;
+    opacity: 0.22;
+    filter: blur(8px) saturate(0.9);
+    transform: scale(1.1);
+    pointer-events: none; z-index: 0;
+  }
+
+  .bg-tint {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at 50% 35%, rgba(24, 14, 8, 0.3), rgba(6, 4, 3, 0.86));
+    pointer-events: none; z-index: 0;
+  }
+
+  .orb {
+    position: fixed; border-radius: 50%;
+    opacity: 0.18; pointer-events: none; z-index: 0;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 280px; height: 280px; background: radial-gradient(circle, #b87840 0%, rgba(184,120,64,0) 70%); top: -80px; left: -80px; }
+  .orb-2 { width: 320px; height: 320px; background: radial-gradient(circle, #6b3d18 0%, rgba(107,61,24,0) 70%); bottom: -100px; right: -80px; animation-delay: -9s; }
+
+  #spaceCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+  @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(28px,20px) scale(1.08); } }
+  @keyframes floatBg { 0% { transform: scale(1.1) translate(0,0); } 100% { transform: scale(1.16) translate(-12px,-8px); } }
+
+  .hud {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 14px; min-height: 100vh;
+  }
+
+  .glass {
+    background: var(--panel);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+  }
+
+  /* ── HEADER ── */
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 10px 13px; }
+
+  .brand { display: flex; align-items: center; gap: 10px; }
+
+  .avatar-wrap {
+    width: 40px; height: 40px; border-radius: 10px; padding: 1.5px;
+    background: linear-gradient(135deg, #fff3e0, var(--caramel), var(--brown));
+    box-shadow: 0 0 14px rgba(205,157,105,0.3); flex-shrink: 0;
+  }
+  .avatar-wrap img { width: 100%; height: 100%; border-radius: 8.5px; object-fit: cover; display: block; }
+
+  .brand-title { font-size: 13.5px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: #fff; }
+  .brand-sub {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-top: 2px;
+  }
+  .status-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--caramel); box-shadow: 0 0 6px var(--caramel);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .header-actions { display: flex; gap: 6px; }
+
+  .icon-btn {
+    width: 33px; height: 33px; display: grid; place-items: center;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    color: var(--muted); border-radius: 8px; cursor: pointer; transition: all 0.16s ease;
+  }
+  .icon-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-btn:hover { color: #fff; border-color: rgba(255,255,255,0.25); background: rgba(205,157,105,0.1); }
+  .icon-btn.active { color: #fff; border-color: var(--border-active); background: rgba(205,157,105,0.18); box-shadow: 0 0 12px rgba(205,157,105,0.22); }
+
+  /* ── MODE SELECTOR ── */
+  .segment-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; padding: 5px; }
+
+  .seg-btn {
+    background: transparent; border: 1px solid transparent; color: var(--muted);
+    padding: 9px 6px; border-radius: 8px; cursor: pointer;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    transition: all 0.16s ease; position: relative;
+  }
+  .seg-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.03); }
+  .seg-btn.active {
+    color: #fff;
+    background: linear-gradient(135deg, rgba(205,157,105,0.22), rgba(122,68,32,0.26));
+    border-color: var(--border-active);
+    box-shadow: 0 0 14px rgba(205,157,105,0.16);
+  }
+
+  /* ── INPUT ── */
+  .input-panel { padding: 11px 12px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+  .input-panel:focus-within { border-color: var(--border-active); box-shadow: 0 0 20px rgba(205,157,105,0.12); }
+
+  textarea {
+    width: 100%; height: 108px;
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-size: 13.5px; line-height: 1.55; resize: none;
+  }
+  textarea::placeholder { color: rgba(158,142,128,0.5); }
+
+  .input-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 8px; margin-top: 2px;
+    border-top: 1px solid rgba(255,255,255,0.065);
+  }
+
+  .footer-left { display: flex; align-items: center; gap: 10px; }
+
+  .char-count {
+    font-size: 10.5px; color: var(--muted); letter-spacing: 0.5px;
+    transition: color 0.2s ease;
+  }
+  .char-count.warn { color: #f9a157; }
+  .char-count.over { color: var(--danger); }
+
+  .shortcut {
+    font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase;
+    color: rgba(158,142,128,0.5);
+    padding: 2px 6px; border: 1px solid rgba(158,142,128,0.18); border-radius: 4px;
+  }
+
+  .primary-btn {
+    background: linear-gradient(135deg, #bf8752, #7a3f1c);
+    border: 1px solid rgba(255,245,235,0.2);
+    color: #fff; font-size: 11px; font-weight: 700;
+    letter-spacing: 1.1px; text-transform: uppercase;
+    padding: 8px 17px; border-radius: 8px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px;
+    box-shadow: 0 0 16px rgba(205,157,105,0.22);
+    transition: all 0.15s ease; white-space: nowrap;
+  }
+  .primary-btn:hover { filter: brightness(1.12); box-shadow: 0 0 22px rgba(205,157,105,0.38); }
+  .primary-btn:active { transform: scale(0.97); }
+  .primary-btn:disabled { opacity: 0.45; cursor: wait; filter: none; }
+
+  .btn-icon { width: 13px; height: 13px; }
+
+  /* ── RESULTS ── */
+  .results { display: flex; flex-direction: column; gap: 9px; flex: 1; }
+
+  .card {
+    padding: 11px 13px; transition: border-color 0.18s ease, background 0.18s ease;
+    animation: fadeUp 0.2s ease;
+  }
+  .card:hover { background: var(--panel-hover); border-color: rgba(205,157,105,0.4); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+
+  .tag {
+    font-size: 9.5px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase;
+    color: var(--caramel); background: rgba(205,157,105,0.1);
+    border: 1px solid rgba(205,157,105,0.25); padding: 3px 7px; border-radius: 5px;
+  }
+
+  .copy-btn {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    color: var(--muted); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 6px; cursor: pointer; transition: all 0.14s ease;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .copy-btn:hover { color: #fff; border-color: rgba(255,255,255,0.28); }
+  .copy-btn.copied { color: #fff; border-color: var(--caramel); background: rgba(205,157,105,0.2); }
+
+  .result-text { font-size: 14px; line-height: 1.55; color: #fff; user-select: text; }
+  .result-note { font-size: 11.5px; color: var(--muted); margin-top: 5px; font-style: italic; }
+
+  /* ── EMPTY / LOADING ── */
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 11px; padding: 26px 14px;
+    text-align: center; color: var(--muted); font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .empty-mascot {
+    width: 80px; height: 80px; border-radius: 16px; object-fit: cover; opacity: 0.78;
+    border: 1px solid var(--border); box-shadow: 0 0 22px rgba(205,157,105,0.16);
+  }
+
+  .loader-ring {
+    width: 32px; height: 32px;
+    border: 2px solid rgba(205,157,105,0.18); border-top-color: var(--caramel);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.4);
+    color: #fecaca; padding: 11px 13px; border-radius: 11px; font-size: 12.5px;
+    backdrop-filter: blur(12px); line-height: 1.5;
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(10px);
+    background: rgba(205,157,105,0.18); border: 1px solid var(--border-active);
+    color: #fff; font-size: 11px; letter-spacing: 0.9px; text-transform: uppercase;
+    padding: 7px 16px; border-radius: 20px; backdrop-filter: blur(14px);
+    z-index: 50; opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── MODAL ── */
+  .modal-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(4,2,1,0.84); backdrop-filter: blur(10px);
+    align-items: center; justify-content: center; z-index: 30; padding: 16px;
+  }
+  .modal-bg.open { display: flex; }
+
+  .modal { width: 100%; max-width: 370px; padding: 17px; display: flex; flex-direction: column; gap: 11px; }
+
+  .modal-title { font-size: 12.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #fff; }
+  .modal p { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+
+  .modal input {
+    width: 100%; padding: 9px 11px; border-radius: 8px;
+    border: 1px solid var(--border); background: rgba(6,4,3,0.9); color: #fff; font-size: 12.5px; outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .modal input:focus { border-color: var(--border-active); }
+
+  .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+  .ghost-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.9px;
+    text-transform: uppercase; padding: 9px; border-radius: 8px; cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .ghost-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+</style>
+</head>
+<body>
+
+<div class="bg-mascot"></div>
+<div class="bg-tint"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<canvas id="spaceCanvas"></canvas>
+<div id="toast"></div>
+
+<div class="hud">
+
+  <!-- Header -->
+  <div class="header glass">
+    <div class="brand">
+      <div class="avatar-wrap">
+        <img src="BfadtOi.png" alt="MYAMO">
+      </div>
+      <div>
+        <div class="brand-title">MYAMO Translate</div>
+        <div class="brand-sub">
+          <span class="status-dot"></span>
+          <span>Discord &bull; EN / RU</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="clearBtn" title="Effacer">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
+      </button>
+      <button class="icon-btn" id="pinBtn" title="Toujours au premier plan">
+        <svg viewBox="0 0 24 24"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16h14v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1h1V4H7v2h1a1 1 0 0 1 1 1z"></path></svg>
+      </button>
+      <button class="icon-btn" id="settingsBtn" title="Clé API">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mode -->
+  <div class="segment-bar glass" id="modeRow">
+    <button class="seg-btn active" data-mode="fr_en">FR &rarr; EN</button>
+    <button class="seg-btn" data-mode="fr_ru">FR &rarr; RU</button>
+    <button class="seg-btn" data-mode="auto_fr">AUTO &rarr; FR</button>
+  </div>
+
+  <!-- Input -->
+  <div class="input-panel glass">
+    <textarea id="inputText" placeholder="Saisis ton message ici..." maxlength="800"></textarea>
+    <div class="input-footer">
+      <div class="footer-left">
+        <span class="char-count" id="charCount">0 / 800</span>
+        <span class="shortcut">Ctrl + Entrée</span>
+      </div>
+      <button class="primary-btn" id="translateBtn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 8l6 6"></path><path d="M4 14l6-6 2-3"></path>
+          <path d="M2 5h12"></path><path d="M7 2h1"></path>
+          <path d="M22 22l-5-10-5 10"></path><path d="M14 18h6"></path>
+        </svg>
+        Traduire
+      </button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="empty-state glass">
+      <img src="FCTYZANCE.png" class="empty-mascot" alt="MYAMO">
+      <div>Prêt à traduire</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal glass">
+    <div class="modal-title">Clé API Gemini</div>
+    <p>Colle ta clé depuis <strong style="color:var(--caramel)">aistudio.google.com/apikey</strong>. Elle est stockée localement dans <code style="font-size:11px;color:var(--caramel)">config.json</code>.</p>
+    <input type="password" id="apiKeyInput" placeholder="AIzaSy...">
+    <div class="modal-actions">
+      <button class="ghost-btn" id="closeModal">Annuler</button>
+      <button class="primary-btn" id="saveKeyBtn" style="justify-content:center;">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── Canvas étoiles + filantes ── */
+  const canvas = document.getElementById("spaceCanvas");
+  const ctx = canvas.getContext("2d");
+  let w, h, stars = [], shooters = [];
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    stars = Array.from({ length: 70 }, () => ({
+      x: Math.random() * w, y: Math.random() * h,
+      r: Math.random() * 1.4 + 0.3,
+      a: Math.random() * 0.65 + 0.2,
+      s: Math.random() * 0.012 + 0.004,
+      vy: Math.random() * 0.1 + 0.025,
+      warm: Math.random() > 0.4
+    }));
+  }
+
+  function spawnShooter() {
+    shooters.push({
+      x: Math.random() * w * 0.9 + w * 0.05,
+      y: Math.random() * h * 0.4,
+      len: Math.random() * 90 + 60,
+      speed: Math.random() * 6 + 7,
+      alpha: 1
+    });
+  }
+
+  function animateSpace() {
+    ctx.clearRect(0, 0, w, h);
+    for (const st of stars) {
+      st.a += st.s;
+      if (st.a > 0.9 || st.a < 0.12) st.s *= -1;
+      st.y -= st.vy;
+      if (st.y < -2) { st.y = h + 2; st.x = Math.random() * w; }
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fillStyle = st.warm ? `rgba(210,158,106,${st.a})` : `rgba(255,247,238,${st.a})`;
+      ctx.fill();
+    }
+    if (Math.random() < 0.016) spawnShooter();
+    for (let i = shooters.length - 1; i >= 0; i--) {
+      const sh = shooters[i];
+      const dx = -sh.speed * 0.85, dy = sh.speed * 0.52;
+      sh.x += dx; sh.y += dy; sh.alpha -= 0.013;
+      const tx = sh.x - dx * (sh.len / sh.speed), ty = sh.y - dy * (sh.len / sh.speed);
+      const g = ctx.createLinearGradient(sh.x, sh.y, tx, ty);
+      g.addColorStop(0, `rgba(255,246,235,${sh.alpha})`);
+      g.addColorStop(0.3, `rgba(205,157,105,${sh.alpha * 0.72})`);
+      g.addColorStop(0.7, `rgba(122,68,32,${sh.alpha * 0.32})`);
+      g.addColorStop(1, "rgba(122,68,32,0)");
+      ctx.beginPath(); ctx.strokeStyle = g; ctx.lineWidth = 1.6;
+      ctx.moveTo(sh.x, sh.y); ctx.lineTo(tx, ty); ctx.stroke();
+      if (sh.alpha <= 0 || sh.x < -120 || sh.y > h + 120) shooters.splice(i, 1);
+    }
+    requestAnimationFrame(animateSpace);
+  }
+
+  window.addEventListener("resize", resize);
+  resize(); animateSpace();
+
+  /* ── Toast ── */
+  function showToast(msg, duration = 1600) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), duration);
+  }
+
+  /* ── Compteur de caractères ── */
+  const inputText = document.getElementById("inputText");
+  const charCount = document.getElementById("charCount");
+  inputText.addEventListener("input", () => {
+    const n = inputText.value.length;
+    charCount.textContent = `${n} / 800`;
+    charCount.className = "char-count" + (n > 700 ? (n > 780 ? " over" : " warn") : "");
+  });
+
+  /* ── Mode ── */
+  let currentMode = "fr_en";
+  const placeholders = {
+    fr_en: "Saisis ton message en français...",
+    fr_ru: "Saisis ton message en français...",
+    auto_fr: "Paste your EN/RU message here..."
+  };
+
+  document.querySelectorAll("#modeRow .seg-btn").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll("#modeRow .seg-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentMode = btn.dataset.mode;
+      inputText.placeholder = placeholders[currentMode];
+    };
+  });
+
+  /* ── Clear ── */
+  document.getElementById("clearBtn").onclick = () => {
+    inputText.value = "";
+    charCount.textContent = "0 / 800";
+    charCount.className = "char-count";
+    document.getElementById("results").innerHTML = `
+      <div class="empty-state glass">
+        <img src="FCTYZANCE.png" class="empty-mascot" alt="MYAMO">
+        <div>Prêt à traduire</div>
+      </div>`;
+    inputText.focus();
+  };
+
+  /* ── Pin ── */
+  document.getElementById("pinBtn").onclick = async () => {
+    const res = await window.pywebview.api.toggle_on_top();
+    document.getElementById("pinBtn").classList.toggle("active", res.on_top);
+    showToast(res.on_top ? "Épinglé au premier plan" : "Non épinglé");
+  };
+
+  /* ── Modal paramètres ── */
+  const modalBg = document.getElementById("modalBg");
+
+  document.getElementById("settingsBtn").onclick = async () => {
+    document.getElementById("apiKeyInput").value = await window.pywebview.api.get_api_key();
+    modalBg.classList.add("open");
+    setTimeout(() => document.getElementById("apiKeyInput").focus(), 80);
+  };
+
+  document.getElementById("closeModal").onclick = () => modalBg.classList.remove("open");
+  modalBg.onclick = e => { if (e.target === modalBg) modalBg.classList.remove("open"); };
+
+  document.getElementById("apiKeyInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("saveKeyBtn").click();
+    if (e.key === "Escape") modalBg.classList.remove("open");
+  });
+
+  document.getElementById("saveKeyBtn").onclick = async () => {
+    const key = document.getElementById("apiKeyInput").value.trim();
+    await window.pywebview.api.save_api_key(key);
+    modalBg.classList.remove("open");
+    showToast(key ? "Clé enregistrée" : "Clé effacée");
+  };
+
+  /* ── Traduction ── */
+  async function doTranslate() {
+    const text = inputText.value.trim();
+    if (!text) { inputText.focus(); return; }
+
+    const btn = document.getElementById("translateBtn");
+    const resultsDiv = document.getElementById("results");
+
+    btn.disabled = true;
+    btn.innerHTML = `<div class="loader-ring" style="width:14px;height:14px;border-width:2px;margin:0;"></div> En cours...`;
+
+    resultsDiv.innerHTML = `
+      <div class="empty-state glass">
+        <div class="loader-ring"></div>
+        <div>Traduction en cours</div>
+      </div>`;
+
+    let res;
+    try {
+      res = await window.pywebview.api.translate(text, currentMode);
+    } catch (e) {
+      res = { error: "Impossible de joindre le backend Python : " + (e && e.message ? e.message : e) };
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l6 6"></path><path d="M4 14l6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="M22 22l-5-10-5 10"></path><path d="M14 18h6"></path></svg> Traduire`;
+
+    if (res.error) {
+      resultsDiv.innerHTML = `<div class="error-box">${res.error}</div>`;
+      return;
+    }
+
+    resultsDiv.innerHTML = "";
+    (res.results || []).forEach((item, idx) => {
+      const card = document.createElement("div");
+      card.className = "card glass";
+      card.style.animationDelay = `${idx * 55}ms`;
+      card.innerHTML = `
+        <div class="card-top">
+          <span class="tag">${item.tag || "Résultat"}</span>
+          <button class="copy-btn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copier
+          </button>
+        </div>
+        <div class="result-text"></div>
+        ${item.note ? `<div class="result-note">${item.note}</div>` : ""}
+      `;
+      card.querySelector(".result-text").textContent = item.text;
+      const copyBtn = card.querySelector(".copy-btn");
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(item.text).then(() => {
+          copyBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copié`;
+          copyBtn.classList.add("copied");
+          showToast("Copié dans le presse-papiers");
+          setTimeout(() => {
+            copyBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copier`;
+            copyBtn.classList.remove("copied");
+          }, 1800);
+        });
+      };
+      resultsDiv.appendChild(card);
+    });
+  }
+
+  document.getElementById("translateBtn").onclick = doTranslate;
+  inputText.addEventListener("keydown", e => { if (e.ctrlKey && e.key === "Enter") doTranslate(); });
+</script>
+</body>
+</html>

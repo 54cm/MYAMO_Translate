@@ -1,22 +1,30 @@
 <div align="center">
 
-<img src="myamoquiregardemale.png" alt="MYAMO" width="260">
+<img src="banner.svg" alt="MYAMO Translate" width="100%">
 
-# MYAMO Translate
+<br>
+
+<img src="myamoquiregardemale.png" alt="MYAMO mascot" width="200">
 
 **Translate like you actually talk on Discord.**
 Short, slangy, no textbook English.
 
-![Platform](https://img.shields.io/badge/platform-Windows-b5834f?style=flat-square)
-![Python](https://img.shields.io/badge/python-3.10%2B-b5834f?style=flat-square)
-![Powered by](https://img.shields.io/badge/powered%20by-Gemini-b5834f?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-b5834f?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-Windows-c68642?style=for-the-badge&labelColor=2a1a0f)
+![Python](https://img.shields.io/badge/python-3.10%2B-c68642?style=for-the-badge&labelColor=2a1a0f)
+![Gemini](https://img.shields.io/badge/powered%20by-Gemini-c68642?style=for-the-badge&labelColor=2a1a0f)
+![License](https://img.shields.io/badge/license-MIT-c68642?style=for-the-badge&labelColor=2a1a0f)
 
 [Download](../../releases/latest) &nbsp;|&nbsp; [Setup](#setup) &nbsp;|&nbsp; [Build from source](#build-from-source)
 
 </div>
 
 ---
+
+## Preview
+
+<div align="center">
+<img src="https://i.imgur.com/rXM1BsV.jpeg" alt="MYAMO Translate preview" width="640">
+</div>
 
 ## What it does
 
@@ -34,7 +42,7 @@ Example: *"je sais pas, on verra plus tard"* becomes *"idk, we'll see later"* or
 
 - Slang-first translations, never stiff or schoolbook
 - Always-on-top toggle, so it can sit next to your game or chat
-- Glass-style HUD with a caramel and black theme and an animated starfield
+- Glass-style HUD with a black and caramel theme and an animated starfield
 - Lightweight: one window, one shortcut, nothing running in the background
 - Your API key stays on your machine
 

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="banner.svg" alt="MYAMO Translate" width="640">
+<img src="banner.png" alt="MYAMO Translate" width="640">
 
 <br>
 
@@ -84,5 +84,5 @@ MIT. Do what you want, just keep the notice.
 ---
 
 <div align="right">
-<img src="signature.svg" alt="by NawFas" width="180">
+<img src="signature.png" alt="by NawFas" width="180">
 </div>

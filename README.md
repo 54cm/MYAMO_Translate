@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="banner.svg" alt="MYAMO Translate" width="100%">
+<img src="banner.svg" alt="MYAMO Translate" width="640">
 
 <br>
 
-<img src="myamoquiregardemale.png" alt="MYAMO mascot" width="200">
+<img src="myamoquiregardemale.png" alt="MYAMO mascot" width="100">
 
 **Translate like you actually talk on Discord.**
 Short, slangy, no textbook English.

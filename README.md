@@ -20,12 +20,6 @@ Short, slangy, no textbook English.
 
 ---
 
-## Preview
-
-<div align="center">
-<img src="https://i.imgur.com/rXM1BsV.jpeg" alt="MYAMO Translate preview" width="640">
-</div>
-
 ## What it does
 
 Paste a message, pick a mode, get three ready-to-send variants.
@@ -86,3 +80,9 @@ Python, [pywebview](https://pywebview.flowrl.com), HTML/CSS/JS, Gemini API, PyIn
 ## License
 
 MIT. Do what you want, just keep the notice.
+
+---
+
+<div align="right">
+<img src="signature.svg" alt="by NawFas" width="180">
+</div>

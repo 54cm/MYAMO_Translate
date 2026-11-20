@@ -84,5 +84,5 @@ MIT. Do what you want, just keep the notice.
 ---
 
 <div align="right">
-<img src="signature.png" alt="by NawFas" width="180">
+<img src="https://img.shields.io/badge/by-NawFas-c68642?style=for-the-badge&labelColor=2a1a0f" alt="by NawFas">
 </div>
